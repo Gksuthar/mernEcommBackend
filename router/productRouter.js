@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 })
 const upload = multer({storage})
 
-productRouter.post('/addProduct',auth,createProduct)
+productRouter.post('/addProduct',createProduct)
 productRouter.post('/upload',upload.array('image'),auth,imageUploader)
 productRouter.get('/',getAllProducts)
 productRouter.get('/getAllProductsBycatId',auth,getAllProductsBycatId)

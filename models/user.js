@@ -68,11 +68,11 @@ const userSchema = mongoose.Schema(
       default: "USER",
     },
     refresh_token: {
-      type: String, // Store the refresh token here
+      type: String, 
       default: "",
     },
     generated_token: {
-      type: String, // Store the generated JWT here
+      type: String, 
       default: "",
     },
   },

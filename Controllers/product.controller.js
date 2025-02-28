@@ -43,7 +43,7 @@ const imageUploader = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    const userId = req.userId;
+    // const userId = req.userId;
     const {
       name,
       description,
@@ -99,7 +99,7 @@ const createProduct = async (req, res) => {
     images = [];
     return res
       .status(200)
-      .json({ data: savedProduct, success: false, error: true });
+      .json({ data: savedProduct, success: true, error: false });
   } catch (error) {
     return res
       .status(500)
