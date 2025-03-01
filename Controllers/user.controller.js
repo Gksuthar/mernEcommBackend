@@ -7,8 +7,6 @@ import generatedRefreshToken from "../utils/generateRefreshToken.js";
 import generatedAccessToken from "../utils/generateAccessToken.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import { error } from "console";
-;
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_KEY,
@@ -452,7 +450,7 @@ const userDetails=async(req,res)=>{
     return res.json({message:"User is not exist",error:true,success:false})
   }
   
-  return res.json({message:"user fetched ",error:false,success:true,data:user})
+  return res.status(200).json({message:"user fetched ",error:false,success:true,data:user})
   
 } catch (error) {
   return res.status(401).send({message:error.message || error ,error:true,success:false})
