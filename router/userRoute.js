@@ -26,6 +26,6 @@ router.post('/forgetpassword',forgetPassword);
 router.post('/verifyOtp',verifyOtpContoller);
 router.post('/resetpassword',resetpasswordController);
 router.post('/refeshToken',refreshTokenController);
-router.post('/user-details',auth,userDetails);
+router.get('/user-details',auth,userDetails);
 
 export default router;
