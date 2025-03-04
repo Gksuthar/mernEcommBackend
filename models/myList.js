@@ -4,8 +4,8 @@ import mongoose from "mongoose";
 
 const myListSchema = mongoose.Schema({
   productId: {
-    type: String,
-    require:true,
+    type :mongoose.Schema.ObjectId,
+    ref  : "product"
   },
   userId: {
     type: String,
