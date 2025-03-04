@@ -82,7 +82,7 @@ const removeToMyListController=async(req,res)=>{
 const getToMyListController=async(req,res)=>{
     try {
         const userId = req.userId
-          const data = await MyListModal.find({userId:userId})
+          const data = await MyListModal.find({userId:userId}).populate("productId");
           if (!data) {
             return res.status(400).json({
                 message: "List not founded",
