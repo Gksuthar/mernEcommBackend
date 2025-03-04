@@ -79,26 +79,31 @@ const removeToMyListController=async(req,res)=>{
         res.status(500).send({message:error.message || error , success:false,error:true})
     }
 }
-const getToMyListController=async(req,res)=>{
-    try {
-        const userId = req.userId
-          const data = await MyListModal.find({userId:userId}).populate("productId");
-          if (!data) {
-            return res.status(400).json({
-                message: "List not founded",
-                success: false,
-                error: true,
-              });
-          }
-          
-    return res.status(201).json({
-      message: "Item fetched From  MyList successfully",
-      data:data,
+const getToMyListController = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const data = await MyListModal.find({ userId }).populate("productId");
+    if (!data || data.length === 0) {
+      return res.status(404).json({
+        message: "Wishlist is empty",
+        success: false,
+        error: true,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Items fetched from MyList successfully",
+      data: data,
       success: true,
       error: false,
     });
-    } catch (error) {
-        res.status(500).send({message:error.message || error , success:false,error:true})
-    }
-}
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || error,
+      success: false,
+      error: true,
+    });
+  }
+};
+
 export {addToMyListController,removeToMyListController,getToMyListController}
