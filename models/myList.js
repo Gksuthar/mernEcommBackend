@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 const myListSchema = mongoose.Schema({
   productId: {
  type :mongoose.Schema.ObjectId,
-        ref  : "product"
+        ref  : "Product"
   },
   userId: {
     type: String,
