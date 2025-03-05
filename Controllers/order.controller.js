@@ -75,6 +75,7 @@ export const verifyOrder = async (req, res) => {
       paymentId: razorpay_payment_id,
       paymentStatus: 'success',
       subTotalAmt: amount,
+      productId:cartData[0]._id,
       invoice_receipt: razorpay_signature,
       products: cartData, // Assuming the schema supports array of products
     });
