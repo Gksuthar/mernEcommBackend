@@ -14,7 +14,7 @@ const orderSchema = mongoose.Schema({
     },
     productId :{  
         type :mongoose.Schema.ObjectId,
-        ref  : "product"
+        ref  : "Product"
     },
     product_details :{  
         name :String,
@@ -44,5 +44,5 @@ const orderSchema = mongoose.Schema({
     timeStamp : true
 })
 
-const orderData = mongoose.model('Order',orderSchema)
-export default orderData
+const OrderData = mongoose.model('Order',orderSchema)
+export default OrderData
