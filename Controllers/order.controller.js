@@ -32,44 +32,33 @@ export const createOrder = async (req, res) => {
 };
 export const verifyOrder = async (req, res) => {
   try {
-    const userId = req.userId;
-    const { amount, razorpay_order_id, razorpay_payment_id, razorpay_signature, cartData } = req.body;
+    const userId = req.userId
+    const { amount,razorpay_order_id,razorpay_payment_id,razorpay_signature } = req.body;
 
     if (!amount || isNaN(amount)) {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
-    if (!cartData) {
-      return res.status(400).json({ error: 'Cart data is required' });
-    }
-
-    // ✅ Verify signature
-    const generatedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(razorpay_order_id + "|" + razorpay_payment_id)
-      .digest('hex');
-
-    if (generatedSignature !== razorpay_signature) {
-      return res.status(400).json({ error: 'Invalid payment signature' });
-    }
-
-    // ✅ Save order details
-    const orderData = new OrderData({
-      userId: userId,
-      orderId: razorpay_order_id,
-      productId: cartData.productId, // Assuming cartData has productId
+    const orderData  = new OrderData({
+      userId : userId,
+      orderId:razorpay_order_id,
+      productId:cartData.productId,
       product_details: cartData,
-      paymentId: razorpay_payment_id,
-      paymentStatus: "success",
-      subTotalAmt: amount,
-      invoice_receipt: razorpay_signature,
-    });
-
-    await orderData.save();
-
-    res.status(200).json({ message: 'Payment verified and order saved successfully', orderData });
+      paymentId : razorpay_payment_id,
+      paymentStatus : "success",
+      subTotalAmt:amount,
+      invoice_receipt: razorpay_signature
+    })
+    await orderData.save()
+    // const options = {
+    //   amount: amount * 100, // Convert to paise
+    //   currency: 'INR',
+    //   receipt: `receipt_${Math.random() * 1000}`,
+    // };
+    // const order = await razorpayInstance.orders.create(options);
+    res.status(200).json(order);
   } catch (err) {
-    console.error('Error verifying Razorpay payment:', err);
-    res.status(500).json({ error: 'Failed to verify Razorpay payment' });
+    console.error('Error creating Razorpay order:', err);
+    res.status(500).json({ error: 'Failed to create Razorpay order' });
   }
 };
