@@ -39,7 +39,7 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
-    const OrderData = new OrderData({
+    const orderData  = new OrderData({
       userId : userId,
       orderId:razorpay_order_id,
       productId:cartData.productId,
@@ -49,7 +49,7 @@ export const verifyOrder = async (req, res) => {
       subTotalAmt:amount,
       invoice_receipt: razorpay_signature
     })
-    await OrderData.save()
+    await orderData.save()
     // const options = {
     //   amount: amount * 100, // Convert to paise
     //   currency: 'INR',
