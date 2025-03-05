@@ -64,7 +64,7 @@ export const verifyOrder = async (req, res) => {
     const orderData = new OrderData({
       userId: userId,
       orderId: razorpay_order_id,
-      productId: cartData.productId,
+      productId: cartData._id,
       product_details: cartData,
       paymentId: razorpay_payment_id,
       paymentStatus: 'success',
