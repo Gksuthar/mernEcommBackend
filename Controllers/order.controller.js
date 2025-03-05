@@ -4,45 +4,49 @@ import OrderData from '../models/order.js';
 import crypto from 'crypto';
 
 dotenv.config();
+
 const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
+// ✅ Create Order
 export const createOrder = async (req, res) => {
   try {
     const { amount } = req.body;
 
-
-    // Validate amount
-    if (!amount || isNaN(amount)) {
+    if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
     const options = {
-      amount: amount * 100, // Convert to paise
+      amount: Math.round(amount * 100), // Convert to paise
       currency: 'INR',
-      receipt: `receipt_${Math.random() * 1000}`,
+      receipt: `receipt_${Date.now()}`, // Unique receipt ID
     };
+
     const order = await razorpayInstance.orders.create(options);
+
     res.status(200).json(order);
   } catch (err) {
     console.error('Error creating Razorpay order:', err);
     res.status(500).json({ error: 'Failed to create Razorpay order' });
   }
 };
+
+// ✅ Verify Order
 export const verifyOrder = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.userId; // Ensure this comes from authenticated middleware
     const {
       amount,
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      cartData, // ✅ Should be an array of cart items
+      cartData, // Expecting array of cart items
     } = req.body;
 
-    if (!amount || isNaN(amount)) {
+    if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
@@ -50,7 +54,11 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: 'Missing payment details' });
     }
 
-    // ✅ Verify payment signature
+    if (!Array.isArray(cartData) || cartData.length === 0) {
+      return res.status(400).json({ error: 'Cart data is required and must be an array' });
+    }
+
+    // Verify payment signature
     const generated_signature = crypto
       .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -60,24 +68,15 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: 'Invalid signature, payment verification failed' });
     }
 
-    // ✅ Map cartData to products array
-    const products = cartData.map(item => ({
-      productId: item._id,
-      name: item.name,
-      image: item.image, // assuming it's an array of strings
-      quantity: item.qty, // or whatever field holds the quantity
-      price: item.price,
-    }));
-
-    // ✅ Save the verified order
+    // Save order
     const orderData = new OrderData({
-      userId: userId,
+      userId,
       orderId: razorpay_order_id,
-      products: products,
       paymentId: razorpay_payment_id,
       paymentStatus: 'success',
       subTotalAmt: amount,
       invoice_receipt: razorpay_signature,
+      products: cartData, // Assuming the schema supports array of products
     });
 
     await orderData.save();
