@@ -39,7 +39,7 @@ export const verifyOrder = async (req, res) => {
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      cartData, // Array of products
+      cartData, // ✅ Should be an array of cart items
     } = req.body;
 
     if (!amount || isNaN(amount)) {
@@ -48,10 +48,6 @@ export const verifyOrder = async (req, res) => {
 
     if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ error: 'Missing payment details' });
-    }
-
-    if (!Array.isArray(cartData) || cartData.length === 0) {
-      return res.status(400).json({ error: 'Cart data must be a non-empty array' });
     }
 
     // ✅ Verify payment signature
@@ -64,14 +60,20 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: 'Invalid signature, payment verification failed' });
     }
 
-    // ✅ Extract product IDs from cartData
-    const productIds = cartData.map(item => item._id);
+    // ✅ Map cartData to products array
+    const products = cartData.map(item => ({
+      productId: item._id,
+      name: item.name,
+      image: item.image, // assuming it's an array of strings
+      quantity: item.qty, // or whatever field holds the quantity
+      price: item.price,
+    }));
 
-    // ✅ Save order
+    // ✅ Save the verified order
     const orderData = new OrderData({
       userId: userId,
       orderId: razorpay_order_id,
-      products: productIds,
+      products: products,
       paymentId: razorpay_payment_id,
       paymentStatus: 'success',
       subTotalAmt: amount,
