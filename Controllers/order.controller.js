@@ -75,7 +75,7 @@ export const verifyOrder = async (req, res) => {
       paymentId: razorpay_payment_id,
       paymentStatus: 'success',
       subTotalAmt: amount,
-      productId:cartData[0]._id,
+      productId:cartData[0].productId,
       invoice_receipt: razorpay_signature,
       products: cartData, 
     });
@@ -97,21 +97,22 @@ export const getOrder = async (req, res) => {
       return res.status(400).json({ message: "User is invalid", success: false, error: true });
     }
 
-    const orders = await OrderData.find({ userId }).populate('productId');
+    // const orders = await OrderData.find({ userId }).populate('productId')
+    const orders = await OrderData.find({ userId }).populate('productId')
+    // const orders.findOne({ _id: ObjectId("67c9267c6522b8f0021275a9") })
+
 
     if (!orders || orders.length === 0) {
-      return res.status(404).send({ message: "Orders not found", success: false, error: true });
+      return res.status(404).json({ message: "Orders not found", success: false, error: true });
     }
 
-    const orderList = orders.map(order => ({
-      ...order._doc,
-    }));
+    
 
-    return res.status(200).send({
-      message: "Your orders are fetched",
-      data: orderList,
+    return res.status(200).json({
+      message: "Your orders are fetch",
+      data: orders,
       success: true,
-      error: false
+      error: false,
     });
 
   } catch (error) {
@@ -119,7 +120,7 @@ export const getOrder = async (req, res) => {
     return res.status(500).json({
       message: "Internal server error",
       success: false,
-      error: true
+      error: true,
     });
   }
 };
