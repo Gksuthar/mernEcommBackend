@@ -98,8 +98,10 @@ export const getOrder = async (req, res) => {
     }
 
     // const orders = await OrderData.find({ userId }).populate('productId')
-    const orders = await OrderData.find({ userId }).populate('productId')
-    // const orders.findOne({ _id: ObjectId("67c9267c6522b8f0021275a9") })
+    const orders = await OrderData.find({ userId })
+    .populate('productId')
+    .populate('userId');
+      // const orders.findOne({ _id: ObjectId("67c9267c6522b8f0021275a9") })
 
 
     if (!orders || orders.length === 0) {
