@@ -77,7 +77,7 @@ export const verifyOrder = async (req, res) => {
       subTotalAmt: amount,
       productId:cartData[0]._id,
       invoice_receipt: razorpay_signature,
-      products: cartData, // Assuming the schema supports array of products
+      products: cartData, 
     });
 
     await orderData.save();
@@ -86,5 +86,40 @@ export const verifyOrder = async (req, res) => {
   } catch (err) {
     console.error('Error verifying Razorpay payment:', err);
     res.status(500).json({ error: 'Failed to verify Razorpay payment' });
+  }
+};
+
+export const getOrder = async (req, res) => {
+  try {
+    const userId = req.userId;
+
+    if (!userId) {
+      return res.status(400).json({ message: "User is invalid", success: false, error: true });
+    }
+
+    const orders = await OrderData.find({ userId }).populate('productId');
+
+    if (!orders || orders.length === 0) {
+      return res.status(404).send({ message: "Orders not found", success: false, error: true });
+    }
+
+    const orderList = orders.map(order => ({
+      ...order._doc,
+    }));
+
+    return res.status(200).send({
+      message: "Your orders are fetched",
+      data: orderList,
+      success: true,
+      error: false
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal server error",
+      success: false,
+      error: true
+    });
   }
 };

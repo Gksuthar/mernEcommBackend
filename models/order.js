@@ -16,10 +16,7 @@ const orderSchema = mongoose.Schema({
         type :mongoose.Schema.ObjectId,
         ref  : "Product"
     },
-    product_details :{  
-        name :String,
-        image : Array,
-    },
+   
     paymentId :{  
         type:String,
         default :"",
