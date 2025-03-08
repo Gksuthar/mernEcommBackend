@@ -51,7 +51,7 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
-    if (!razorpay_order_id || delivery_address || !razorpay_payment_id || !razorpay_signature) {
+    if (!razorpay_order_id || !delivery_address || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ error: 'Missing payment details' });
     }
 
