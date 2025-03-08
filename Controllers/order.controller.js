@@ -40,6 +40,7 @@ export const verifyOrder = async (req, res) => {
     const userId = req.userId; // Ensure this comes from authenticated middleware
     const {
       amount,
+      delivery_address,
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
@@ -50,7 +51,7 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: 'Invalid amount' });
     }
 
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+    if (!razorpay_order_id || delivery_address || !razorpay_payment_id || !razorpay_signature) {
       return res.status(400).json({ error: 'Missing payment details' });
     }
 
@@ -58,7 +59,6 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: 'Cart data is required and must be an array' });
     }
 
-    // Verify payment signature
     const generated_signature = crypto
       .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
       .update(`${razorpay_order_id}|${razorpay_payment_id}`)
@@ -71,6 +71,7 @@ export const verifyOrder = async (req, res) => {
     // Save order
     const orderData = new OrderData({
       userId,
+      delivery_address,
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
       paymentStatus: 'success',
