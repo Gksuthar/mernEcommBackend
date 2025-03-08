@@ -35,16 +35,17 @@ export const createOrder = async (req, res) => {
 };
 
 // ✅ Verify Order
+
 export const verifyOrder = async (req, res) => {
   try {
-    const userId = req.userId; // Ensure this comes from authenticated middleware
+    const userId = req.userId;
     const {
       amount,
       delivery_address,
       razorpay_order_id,
       razorpay_payment_id,
       razorpay_signature,
-      cartData, // Expecting array of cart items
+      cartData,
     } = req.body;
 
     if (!amount || isNaN(amount) || amount <= 0) {
@@ -52,7 +53,16 @@ export const verifyOrder = async (req, res) => {
     }
 
     if (!razorpay_order_id || !delivery_address || !razorpay_payment_id || !razorpay_signature) {
-      return res.status(400).json({ error: 'Missing payment details' });
+      return res.status(400).json({ error: 'Missing payment details or delivery address' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(delivery_address)) {
+      return res.status(400).json({ error: 'Invalid delivery address format' });
+    }
+
+    const addressExists = await AddressModel.findById(delivery_address);
+    if (!addressExists) {
+      return res.status(404).json({ error: 'Delivery address not found' });
     }
 
     if (!Array.isArray(cartData) || cartData.length === 0) {
@@ -68,7 +78,6 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: 'Invalid signature, payment verification failed' });
     }
 
-    // Save order
     const orderData = new OrderData({
       userId,
       delivery_address,
@@ -76,9 +85,9 @@ export const verifyOrder = async (req, res) => {
       paymentId: razorpay_payment_id,
       paymentStatus: 'success',
       subTotalAmt: amount,
-      productId:cartData[0].productId,
+      productId: cartData[0].productId,
       invoice_receipt: razorpay_signature,
-      products: cartData, 
+      products: cartData,
     });
 
     await orderData.save();
@@ -89,6 +98,7 @@ export const verifyOrder = async (req, res) => {
     res.status(500).json({ error: 'Failed to verify Razorpay payment' });
   }
 };
+
 
 export const getOrder = async (req, res) => {
   try {
