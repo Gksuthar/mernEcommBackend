@@ -28,6 +28,7 @@ const orderSchema = mongoose.Schema(
     delivery_address: {
       type: mongoose.Schema.ObjectId,
       ref: "Address",
+      required:true
     },
     subTotalAmt: {
       type: Number,
