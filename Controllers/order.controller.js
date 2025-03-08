@@ -2,7 +2,7 @@ import Razorpay from 'razorpay';
 import dotenv from 'dotenv';
 import OrderData from '../models/order.js';
 import crypto from 'crypto';
-
+import mongoose from 'mongoose';
 dotenv.config();
 
 const razorpayInstance = new Razorpay({
