@@ -19,7 +19,7 @@ const upload = multer({ storage });
 router.post('/register', registerUserController);
 router.post('/verifyEmail', emailVarification);
 router.post('/Login', loginUserController);
-router.post('/Logout', auth, logoutController);
+router.post('/Logout', logoutController);
 router.post('/user-avatar',auth, upload.array('avatar'), imageUploader);
 router.put('/:id',auth,updateUserDetails);
 router.post('/forgetpassword',forgetPassword);

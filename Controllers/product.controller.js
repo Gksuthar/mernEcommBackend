@@ -33,8 +33,11 @@ const imageUploader = async (req, res) => {
       images.push(img.secure_url);
       fs.unlinkSync(image[i].path);
     }
-    return res.status(200).json({ images: images[0] });
-  } catch (error) {
+    return res.status(200).json({
+      message: "Images uploaded successfully",
+      images: images, 
+      success: true,
+    });  } catch (error) {
     return res
       .status(400)
       .json({ message: error.message || error, success: false, error: true });

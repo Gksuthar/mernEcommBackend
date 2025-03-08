@@ -42,7 +42,7 @@ price:{
         type:String,
         default:''
     },
-    thirdSubCat:{
+    thirdSubCat:{   
         type:String,
         default:''
     },
