@@ -113,7 +113,7 @@ export const getOrder = async (req, res) => {
     const orders = await OrderData.find({ userId })
     .populate('productId')
     .populate('userId')
-    .populate('Address')
+    .populate('delivery_address')
 
 
     if (!orders || orders.length === 0) {
