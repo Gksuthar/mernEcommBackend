@@ -88,7 +88,7 @@ const createProduct = async (req, res) => {
       isFeatured,
       discount,
       productRam,
-      size,
+      size: size.split(',').map(item => item.trim()),
       productWeight,
     });
 
