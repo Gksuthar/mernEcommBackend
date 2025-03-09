@@ -46,7 +46,6 @@ const imageUploader = async (req, res) => {
 
 const createProduct = async (req, res) => {
   try {
-    // const userId = req.userId;
     const {
       name,
       description,
@@ -88,7 +87,7 @@ const createProduct = async (req, res) => {
       isFeatured,
       discount,
       productRam,
-      size: size.split(',').map(item => item.trim()),
+      size: size ? size.split(',').map(item => item.trim()) : [],
       productWeight,
     });
 
@@ -99,16 +98,18 @@ const createProduct = async (req, res) => {
         .status(500)
         .json({ message: "Product Not Created", success: false, error: true });
     }
-    images = [];
+
     return res
       .status(200)
       .json({ data: savedProduct, success: true, error: false });
+
   } catch (error) {
     return res
       .status(500)
       .json({ message: error.message || error, success: false, error: true });
   }
 };
+
 
 const getAllProducts = async (req, res) => {
   try {
