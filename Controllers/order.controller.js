@@ -14,7 +14,7 @@ const razorpayInstance = new Razorpay({
 // ✅ Create Order
 export const createOrder = async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount,Quantity } = req.body;
 
     if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ error: 'Invalid amount' });
@@ -42,6 +42,7 @@ export const verifyOrder = async (req, res) => {
     const userId = req.userId;
     const {
       amount,
+      Quantity,
       delivery_address,
       razorpay_order_id,
       razorpay_payment_id,
@@ -81,6 +82,7 @@ export const verifyOrder = async (req, res) => {
 
     const orderData = new OrderData({
       userId,
+      Quantity,
       delivery_address,
       orderId: razorpay_order_id,
       paymentId: razorpay_payment_id,
