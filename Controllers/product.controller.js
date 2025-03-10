@@ -87,7 +87,12 @@ const createProduct = async (req, res) => {
       isFeatured,
       discount,
       productRam,
-      size: size ? size.split(',').map(item => item.trim()) : [],
+      size: Array.isArray(size) 
+  ? size.map(item => item.trim()) 
+  : size 
+    ? size.split(',').map(item => item.trim()) 
+    : []
+,
       productWeight,
     });
 

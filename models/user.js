@@ -19,10 +19,7 @@ const userSchema = mongoose.Schema(
       type: String,
       required: [true, "Provide Password"],
     },
-    avatar: {
-      type: String,
-      default: "",
-    },
+    avatar: { type: [String] },
     mobile: {
       type: Number,
       default: null,

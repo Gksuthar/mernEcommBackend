@@ -214,37 +214,56 @@ const logoutController = async (req, res) => {
 
 const imageUploader = async (req, res) => {
   try {
-    const userId = req.userId;
-    const images = [];
-    const image = req.files;
+      const userId = req.userId;
+      const images = [];
+      const image = req.files;
 
-    if (!image || image.length === 0) {
-      return res
-        .status(400)
-        .json({ message: "No files uploaded", success: false });
-    }
+      if (!image || image.length === 0) {
+          return res.status(400).json({
+              message: "No files uploaded",
+              success: false
+          });
+      }
 
-    const options = {
-      use_filename: true,
-      unique_filename: false,
-      overwrite: false,
-    };
+      const options = {
+          use_filename: true,
+          unique_filename: false,
+          overwrite: false
+      };
 
-    for (let i = 0; i < image.length; i++) {
-      const img = await cloudinary.uploader.upload(image[i].path, options);
-      images.push(img.secure_url);
-      fs.unlinkSync(image[i].path);
-    }
+      for (let i = 0; i < image.length; i++) {
+          const img = await cloudinary.uploader.upload(image[i].path, options);
+          images.push(img.secure_url);
+          fs.unlinkSync(image[i].path); // Clean up uploaded file after processing
+      }
 
-    return res.status(200).json({ _id: userId, avatar: images[0] });
+      const user = await UserModel.findOne({ _id: userId });
+      if (!user) {
+          return res.status(404).json({ 
+              message: "User not found", 
+              success: false 
+          });
+      }
+
+      // Save avatar URL and persist the update
+      user.avatar = images[0]; 
+      await user.save();
+
+      return res.status(200).json({ 
+          _id: userId, 
+          avatar: images[0],
+          message: "Avatar updated successfully",
+          success: true
+      });
+
   } catch (error) {
-    return res.status(500).json({
-      message: error.message || "Something went wrong",
-      error: false,
-      success: false,
-    });
+      return res.status(500).json({
+          message: error.message || "Something went wrong",
+          success: false
+      });
   }
 };
+
 
 const updateUserDetails = async (req, res) => {
   try {
