@@ -215,54 +215,63 @@ const logoutController = async (req, res) => {
 const imageUploader = async (req, res) => {
   try {
       const userId = req.userId;
-      const images = [];
-      const image = req.files;
-
-      if (!image || image.length === 0) {
+      if (!userId) {
           return res.status(400).json({
-              message: "No files uploaded",
+              message: "User ID is required",
+              success: false
+          });
+      }
+
+      const image = req.file;  // Assuming multer .single() middleware
+      if (!image) {
+          return res.status(400).json({
+              message: "No file uploaded",
               success: false
           });
       }
 
       const options = {
+          folder: "user_avatars", // Organized folder in Cloudinary
           use_filename: true,
-          unique_filename: false,
+          unique_filename: true,
           overwrite: false
       };
 
-      for (let i = 0; i < image.length; i++) {
-          const img = await cloudinary.uploader.upload(image[i].path, options);
-          images.push(img.secure_url);
-          fs.unlinkSync(image[i].path); // Clean up uploaded file after processing
-      }
+      const img = await cloudinary.uploader.upload(image.path, options);
+      await fs.promises.unlink(image.path); // Safe cleanup
 
       const user = await UserModel.findOne({ _id: userId });
       if (!user) {
-          return res.status(404).json({ 
-              message: "User not found", 
-              success: false 
+          return res.status(404).json({
+              message: "User not found",
+              success: false
           });
       }
 
-      // Save avatar URL and persist the update
-      user.avatar = images[0]; 
+      if (user.avatar && typeof user.avatar === 'string' && user.avatar.includes('/')) {
+          const oldImagePublicId = user.avatar.split('/').pop().split('.')[0];
+          await cloudinary.uploader.destroy(oldImagePublicId);
+      }
+
+      user.avatar = img.secure_url;  // ✅ Correctly updating the user's avatar
       await user.save();
 
-      return res.status(200).json({ 
-          _id: userId, 
-          avatar: images[0],
+      return res.status(200).json({
+          _id: userId,
+          avatar: img.secure_url,
           message: "Avatar updated successfully",
           success: true
       });
 
   } catch (error) {
+      console.error("Image Upload Error:", error);
       return res.status(500).json({
-          message: error.message || "Something went wrong",
+          message: error.message || "Failed to upload image",
           success: false
       });
   }
 };
+
 
 
 const updateUserDetails = async (req, res) => {
