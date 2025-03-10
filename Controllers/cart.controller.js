@@ -3,7 +3,7 @@ import UserModal from "../models/user.js";
 const addToCartController = async (req, res) => {
   try {
     const userId = req.userId;
-    const { productId } = req.body;
+    const { productId,quantity } = req.body;
     if (!productId) {
       return res.status(400).json({
         message: "provide product id",
@@ -11,7 +11,6 @@ const addToCartController = async (req, res) => {
         success: false,
       });
     }
-    // const productObjectId = mongoose.Types.ObjectId(productId);
 
     const checkItemCart = await CartProduct.findOne({
       userId: userId,
@@ -27,7 +26,7 @@ const addToCartController = async (req, res) => {
 
     const cart = new CartProduct({
       productId: productId,
-      quantity: 1,
+      quantity: quantity,
       userId: userId,
     });
 
