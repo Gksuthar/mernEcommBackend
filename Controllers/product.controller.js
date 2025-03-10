@@ -13,8 +13,8 @@ var images = [];
 const imageUploader = async (req, res) => {
   try {
     const userId = req.userId;
-    // images = [];
     const image = req.files;
+    images = []
 
     if (!image || image.length === 0) {
       return res
