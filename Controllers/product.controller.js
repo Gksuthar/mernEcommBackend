@@ -45,6 +45,7 @@ const imageUploader = async (req, res) => {
 };
 
 const createProduct = async (req, res) => {
+
   try {
     const {
       name,
@@ -95,8 +96,9 @@ const createProduct = async (req, res) => {
 ,
       productWeight,
     });
-
+    i
     const savedProduct = await newProduct.save();
+    images=[]
 
     if (!savedProduct) {
       return res
