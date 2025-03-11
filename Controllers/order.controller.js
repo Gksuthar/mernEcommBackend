@@ -109,10 +109,8 @@ export const verifyOrder = async (req, res) => {
       paymentId: razorpay_payment_id,
       paymentStatus: "success",
       subTotalAmt: amount,
-      products: cartData.map(item => ({
-        productId: item.productId,
-        quantity: item.quantity,
-      })),
+      productId: cartData.map(item => (item.productId)),
+      Quantity: cartData.map(item => (item.quantity)),
       invoice_receipt: razorpay_signature,
     });
 
