@@ -65,9 +65,7 @@ export const verifyOrder = async (req, res) => {
       !razorpay_payment_id ||
       !razorpay_signature
     ) {
-      return res
-        .status(400)
-        .json({ error: "Missing payment details or delivery address" });
+      return res.status(400).json({ error: "Missing payment details or delivery address" });
     }
 
     // Validate delivery address format
@@ -83,9 +81,7 @@ export const verifyOrder = async (req, res) => {
 
     // Validate cartData
     if (!Array.isArray(cartData) || cartData.length === 0) {
-      return res
-        .status(400)
-        .json({ error: "Cart data is required and must be an array" });
+      return res.status(400).json({ error: "Cart data is required and must be an array" });
     }
 
     // Validate each item in cartData
@@ -102,9 +98,7 @@ export const verifyOrder = async (req, res) => {
       .digest("hex");
 
     if (generated_signature !== razorpay_signature) {
-      return res
-        .status(400)
-        .json({ error: "Invalid signature, payment verification failed" });
+      return res.status(400).json({ error: "Invalid signature, payment verification failed" });
     }
 
     // Save order data
@@ -115,25 +109,19 @@ export const verifyOrder = async (req, res) => {
       paymentId: razorpay_payment_id,
       paymentStatus: "success",
       subTotalAmt: amount,
-      productId: cartData.productId,
-      Quantity: cartData.quantity,
-      // })),
+      products: cartData.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      })),
       invoice_receipt: razorpay_signature,
     });
 
     await orderData.save();
 
-    res
-      .status(200)
-      .json({ message: "Payment verified and order saved successfully!" });
+    res.status(200).json({ message: "Payment verified and order saved successfully!" });
   } catch (err) {
     console.error("Error verifying Razorpay payment:", err);
-    res
-      .status(500)
-      .json({
-        error: "Failed to verify Razorpay payment",
-        details: err.message,
-      });
+    res.status(500).json({ error: "Failed to verify Razorpay payment", details: err.message });
   }
 };
 
