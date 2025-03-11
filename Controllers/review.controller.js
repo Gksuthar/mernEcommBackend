@@ -4,7 +4,6 @@ export const createReview = async (req, res) => {
   const { productId, comment, rating } = req.body;
   const userId = req.userId;
 
-  // Validation
   if (!productId || !comment || !rating) {
     return res.status(400).json({ error: "All fields are required" });
   }
