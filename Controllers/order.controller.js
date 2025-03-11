@@ -116,7 +116,7 @@ export const verifyOrder = async (req, res) => {
       paymentStatus: "success",
       subTotalAmt: amount,
       productId: cartData.productId,
-      quantity: cartData.quantity,
+      Quantity: cartData.quantity,
       // })),
       invoice_receipt: razorpay_signature,
     });
