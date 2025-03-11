@@ -11,17 +11,14 @@ const razorpayInstance = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-// ✅ Create Order
 export const createOrder = async (req, res) => {
   try {
     const { amount } = req.body;
 
-    // Validate amount
     if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
-    // Create Razorpay order
     const options = {
       amount: Math.round(amount * 100), // Convert to paise
       currency: "INR",
@@ -39,7 +36,6 @@ export const createOrder = async (req, res) => {
   }
 };
 
-// ✅ Verify Order
 
 export const verifyOrder = async (req, res) => {
   try {
@@ -58,7 +54,6 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: "Invalid amount" });
     }
 
-    // Validate payment details and delivery address
     if (
       !razorpay_order_id ||
       !delivery_address ||
@@ -116,10 +111,12 @@ export const verifyOrder = async (req, res) => {
       paymentId: razorpay_payment_id,
       paymentStatus: "success",
       subTotalAmt: amount,
-      products: cartData.map(item => ({
-        productId: item.productId,
-        quantity: item.quantity,
-      })),
+      // products: cartData.map(item => ({
+      //   productId: item.productId,
+      //   quantity: item.quantity,
+      // })),
+        productId: cartData[0].productId,
+      Quantity:cartData[0].quantity,
       invoice_receipt: razorpay_signature,
       createdAt: new Date(),
       updatedAt: new Date(),
