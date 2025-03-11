@@ -73,10 +73,13 @@ export const verifyOrder = async (req, res) => {
       return res.status(400).json({ error: "Invalid delivery address format" });
     }
 
-    // Check if delivery address exists
-    const addressExists = await AddressModel.findById(delivery_address);
+    // Check if delivery address exists and belongs to the user
+    const addressExists = await AddressModel.findOne({
+      _id: delivery_address,
+      userId: userId,
+    });
     if (!addressExists) {
-      return res.status(404).json({ error: "Delivery address not found" });
+      return res.status(404).json({ error: "Delivery address not found or does not belong to the user" });
     }
 
     // Validate cartData
@@ -86,8 +89,11 @@ export const verifyOrder = async (req, res) => {
 
     // Validate each item in cartData
     for (const item of cartData) {
-      if (!item.productId || !item.quantity || isNaN(item.quantity)) {
-        return res.status(400).json({ error: "Invalid cart data structure" });
+      if (!mongoose.Types.ObjectId.isValid(item.productId)) {
+        return res.status(400).json({ error: "Invalid product ID in cart data" });
+      }
+      if (!item.quantity || isNaN(item.quantity) || item.quantity <= 0) {
+        return res.status(400).json({ error: "Invalid quantity in cart data" });
       }
     }
 
@@ -98,6 +104,7 @@ export const verifyOrder = async (req, res) => {
       .digest("hex");
 
     if (generated_signature !== razorpay_signature) {
+      console.error("Signature mismatch:", { generated_signature, razorpay_signature });
       return res.status(400).json({ error: "Invalid signature, payment verification failed" });
     }
 
@@ -109,9 +116,13 @@ export const verifyOrder = async (req, res) => {
       paymentId: razorpay_payment_id,
       paymentStatus: "success",
       subTotalAmt: amount,
-      productId: cartData.map(item => (item.productId)),
-      Quantity: cartData.map(item => (item.quantity)),
+      products: cartData.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      })),
       invoice_receipt: razorpay_signature,
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
 
     await orderData.save();
@@ -119,10 +130,13 @@ export const verifyOrder = async (req, res) => {
     res.status(200).json({ message: "Payment verified and order saved successfully!" });
   } catch (err) {
     console.error("Error verifying Razorpay payment:", err);
-    res.status(500).json({ error: "Failed to verify Razorpay payment", details: err.message });
+    res.status(500).json({
+      error: "Failed to verify Razorpay payment",
+      details: err.message,
+      stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+    });
   }
 };
-
 export const getOrder = async (req, res) => {
   try {
     const userId = req.userId;
