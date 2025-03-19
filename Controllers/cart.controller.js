@@ -92,8 +92,10 @@ const getCartItemController = async (req, res) => {
 };
 const updateCartItemController = async (req, res) => {
   try {
-    const userId = req.userId; 
+    const userId = req.userId;
     const { productId, qty } = req.body;
+
+    console.log(`Received update request: productId=${productId}, qty=${qty}`);
 
     if (!productId || qty === undefined) {
       return res.status(400).json({
@@ -104,18 +106,11 @@ const updateCartItemController = async (req, res) => {
     }
 
     if (qty === 0) {
+      console.log(`Deleting product ${productId} for user ${userId}`);
       const deletedCartItem = await CartProduct.findOneAndDelete({
         productId: productId,
         userId: userId,
       });
-
-      if (!deletedCartItem) {
-        return res.status(404).json({
-          message: "Cart item not found or already removed.",
-          error: true,
-          success: false,
-        });
-      }
 
       return res.status(200).json({
         message: "Cart item removed successfully",
@@ -124,19 +119,12 @@ const updateCartItemController = async (req, res) => {
       });
     }
 
+    console.log(`Updating product ${productId} to qty=${qty}`);
     const updatedCartItem = await CartProduct.findOneAndUpdate(
       { productId: productId, userId: userId },
       { $set: { quantity: qty } },
       { new: true }
     );
-
-    if (!updatedCartItem) {
-      return res.status(404).json({
-        message: "Cart item not found.",
-        error: true,
-        success: false,
-      });
-    }
 
     return res.status(200).json({
       data: updatedCartItem,
@@ -152,6 +140,7 @@ const updateCartItemController = async (req, res) => {
     });
   }
 };
+
 
 
 const deletCartItemQty = async (req, res) => {
