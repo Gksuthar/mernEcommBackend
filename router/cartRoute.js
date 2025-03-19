@@ -5,7 +5,7 @@ const cartRouter = express.Router()
 
 cartRouter.post('/create',auth,addToCartController)
 cartRouter.get('/get',auth,getCartItemController)
-cartRouter.get('/update-cart',auth,updateCartItemController)
+cartRouter.put('/update-cart',auth,updateCartItemController)
 cartRouter.delete('/daleteCart',auth,deletCartItemQty)
 
 export default cartRouter

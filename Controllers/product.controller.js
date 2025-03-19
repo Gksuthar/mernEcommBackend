@@ -96,9 +96,8 @@ const createProduct = async (req, res) => {
 ,
       productWeight,
     });
-    i
     const savedProduct = await newProduct.save();
-    images=[]
+    images = []
 
     if (!savedProduct) {
       return res

@@ -3,7 +3,7 @@ import UserModal from "../models/user.js";
 const addToCartController = async (req, res) => {
   try {
     const userId = req.userId;
-    const { productId,quantity } = req.body;
+    const { productId, quantity } = req.body;
     if (!productId) {
       return res.status(400).json({
         message: "provide product id",
@@ -92,44 +92,53 @@ const getCartItemController = async (req, res) => {
 };
 const updateCartItemController = async (req, res) => {
   try {
-    const userId = req.userId;
-    const { _id, qty } = req.body;
+    const userId = req.userId; // Ensure userId is extracted correctly
+    const { productId, qty } = req.body;
 
-    if (!_id || !qty) {
-      return res.status(404).json({
-        message: "id or filed Required.",
+    // Validate input
+    if (!productId || qty === undefined || qty < 1) {
+      return res.status(400).json({
+        message: "Product ID and valid quantity are required.",
         error: true,
         success: false,
       });
     }
-    const updateCartItem = await CartProduct.updateOne(
-      {
-        _id: _id,
-        userId: userId,
-      },
-      {
-        quantity: qty,
-      }
+
+    // Find and update the cart item
+    const updatedCartItem = await CartProduct.findOneAndUpdate(
+      { productId: productId, userId: userId },
+      { $set: { quantity: qty } }, // Use $set to update the quantity
+      { new: true } // Return updated document
     );
+
+    if (!updatedCartItem) {
+      return res.status(404).json({
+        message: "Cart item not found.",
+        error: true,
+        success: false,
+      });
+    }
+
     return res.status(200).json({
-      data: updateCartItem,
+      data: updatedCartItem,
       message: "Cart updated successfully",
       error: false,
       success: true,
     });
   } catch (error) {
     res.status(500).json({
-      message: error.message || error,
+      message: error.message || "Something went wrong.",
       error: true,
       success: false,
     });
   }
 };
+
 const deletCartItemQty = async (req, res) => {
   try {
     const userId = req.userId;
     const { _id } = req.body;
-    if(!_id) {
+    if (!_id) {
       return res.status(404).json({
         message: "id is missing",
         error: true,
@@ -144,10 +153,9 @@ const deletCartItemQty = async (req, res) => {
         success: false,
       });
     }
-    await UserModal.findByIdAndUpdate(userId,{
-      shopping_cart : []
-    })
-    
+    await UserModal.findByIdAndUpdate(userId, {
+      shopping_cart: [],
+    });
 
     res.status(200).json({
       message: "cart item deleted",
