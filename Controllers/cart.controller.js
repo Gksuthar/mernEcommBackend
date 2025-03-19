@@ -92,23 +92,26 @@ const getCartItemController = async (req, res) => {
 };
 const updateCartItemController = async (req, res) => {
   try {
-    const userId = req.userId; // Ensure userId is extracted correctly
+    const userId = req.userId; 
     const { productId, qty } = req.body;
 
-    // Validate input
-    if (!productId || qty === undefined || qty < 1) {
+    if (!productId || qty === undefined ) {
       return res.status(400).json({
         message: "Product ID and valid quantity are required.",
         error: true,
         success: false,
       });
     }
+    if (qty === 0) {
+      const deletedCartItem = await CartProduct.findOneAndDelete({
+        productId: productId,
+        userId: userId,
+      });
 
-    // Find and update the cart item
     const updatedCartItem = await CartProduct.findOneAndUpdate(
       { productId: productId, userId: userId },
-      { $set: { quantity: qty } }, // Use $set to update the quantity
-      { new: true } // Return updated document
+      { $set: { quantity: qty } },
+      { new: true } 
     );
 
     if (!updatedCartItem) {
