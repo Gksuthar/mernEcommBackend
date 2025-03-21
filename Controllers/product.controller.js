@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import ProductModal from "../models/product.js";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import { profileEnd } from "console";
+import { error } from "console";
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_KEY,
@@ -113,6 +113,66 @@ const createProduct = async (req, res) => {
     return res
       .status(500)
       .json({ message: error.message || error, success: false, error: true });
+  }
+};
+
+const updateProductQnty = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const { productId, quantity } = req.body;
+
+    if (!productId || !quantity || isNaN(quantity)) {
+      return res.status(400).send({ 
+        message: "Invalid input data", 
+        success: false, 
+        error: true 
+      });
+    }
+
+    const qty = Number(quantity);
+    if (qty <= 0) {
+      return res.status(400).send({ 
+        message: "Quantity must be greater than 0", 
+        success: false, 
+        error: true 
+      });
+    }
+
+    const product = await ProductModal.findById(productId);
+    if (!product) {
+      return res.status(404).send({ 
+        message: "Item not found", 
+        success: false, 
+        error: true 
+      });
+    }
+
+    if (product.countInStock < qty) {
+      return res.status(400).send({ 
+        message: "Insufficient stock", 
+        success: false, 
+        error: true 
+      });
+    }
+
+    product.countInStock -= qty;
+    const updatedProduct = await product.save();
+
+    return res.status(200).send({ 
+      message: "Product updated successfully", 
+      success: true, 
+      error: false,
+      data: updatedProduct
+    });
+
+  } catch (error) {
+    console.error("Update Product Error:", error);
+    return res.status(500).send({ 
+      message: "Internal Server Error", 
+      success: false, 
+      error: true,
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 
@@ -438,6 +498,7 @@ const getProduct = async (req, res) => {
 export {
   imageUploader,
   createProduct,
+  updateProductQnty,
   getAllProducts,
   getAllProductsBycatId,
   getAllProductsBycatName,
