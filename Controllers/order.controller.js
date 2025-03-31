@@ -111,7 +111,6 @@ export const getOrder = async (req, res) => {
       return res.status(400).json({ message: "User is invalid", success: false, error: true });
     }
 
-    // const orders = await OrderData.find({ userId }).populate('productId')
     const orders = await OrderData.find({ userId })
     .populate('productId')
     .populate('userId')
@@ -140,3 +139,18 @@ export const getOrder = async (req, res) => {
     });
   }
 };
+
+export const getAllOrder =async(req,res)=>{
+  try {
+    const orders = await OrderData.find()
+    .populate('userId')
+    .populate('productId')
+    .populate('delivery_address');
+    if (!orders) {
+      return res.status(400).send({message:"Order is not availible",success:false,error:true})
+    }
+    res.status(200).send({message:"Order is fetched",data:orders,success:true,error:false})
+  } catch (error) {
+    return res.status(400).send({message : "Error occur"+error,success:false,error:true})
+  }
+}
