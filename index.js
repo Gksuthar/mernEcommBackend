@@ -18,10 +18,13 @@ import reviewRouter from './router/reviewRouter.js'
 const app = express()
 app.use(cookieParser())
 app.use(express.json())
-// Update CORS settings to allow all origins
+// Update CORS settings to allow specific origins
 app.use(
   cors({
-    origin: '*',
+    origin: [
+      'https://ecomm-mern-admin-uz48.vercel.app',
+      'https://ecomm-mern-git-main-ganeshs-projects-3b7848cf.vercel.app'
+    ],
     credentials: true,
   })
 );
