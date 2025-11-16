@@ -25,7 +25,7 @@ productRouter.get('/getAllProductsFilterByPrice',getAllProductsFilterByPrice)
 productRouter.get('/getAllProductsByRating',getAllProductsByRating)
 productRouter.get('/getAllProductsCount',auth,getAllProductsCount)
 productRouter.get('/getAllFeatureProducts',getAllFeatureProducts)
-productRouter.post('/deleteProduct/:id',auth,deleteProduct)
+productRouter.post('/deleteProduct/:id',deleteProduct)
 productRouter.get('/:id',getProduct)
 
 export default productRouter

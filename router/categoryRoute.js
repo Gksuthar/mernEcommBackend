@@ -15,7 +15,7 @@ const storage =  multer.diskStorage({
 const upload = multer({storage})
 const routerCat = express.Router()
 routerCat.post('/imageUpload',upload.array('image'),auth,imageUploader)
-routerCat.post('/createCategoryController',auth,createCategoryController)
+routerCat.post('/createCategoryController',createCategoryController)
 routerCat.get('/',getCategoryController)
 
 export default routerCat

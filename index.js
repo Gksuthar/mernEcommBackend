@@ -18,9 +18,17 @@ import reviewRouter from './router/reviewRouter.js'
 const app = express()
 app.use(cookieParser())
 app.use(express.json())
-app.use(cors())
+// Update CORS settings to allow all origins
+app.use(
+  cors({
+    origin: '*',
+    credentials: true,
+  })
+);
 app.use('/api/user',router)
 app.use('/api/routerCategory',routerCat)
+// added alias for frontend consistency: use '/api/category' as well
+app.use('/api/category', routerCat)
 app.use('/api/cart',cartRouter)
 app.use('/api/product',productRouter)
 app.use('/api/mylist',MyListRouter)

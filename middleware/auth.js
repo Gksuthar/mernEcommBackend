@@ -2,10 +2,8 @@ import jwt from 'jsonwebtoken';
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.cookies.accessToken || req?.headers?.authorization?.split(" ")[1];
-    if (!token) {
-      token = localStorage.getItem('accessToken')
-    }
+    // Read token from cookie or Authorization header. Don't use browser localStorage on server.
+    let token = req.cookies?.accessToken || req?.headers?.authorization?.split(" ")[1];
     console.log("Received Token:", token);
 
     if (!token) {

@@ -75,34 +75,52 @@ const createCategoryController = async (req, res) => {
 const getCategoryController = async (req, res) => {
   try {
 
-    const categoryData = await categoyModal.find();
-    const categoryMap = {}
+    let categoryData = await categoyModal.find();
 
-    categoryData.forEach((cat)=>categoryMap[cat._id]={...cat._doc,children:[]})
-
-    const rootCategories = []
-
-    categoryData.forEach((cat)=>{
-      if (cat.parentId) {
-        categoryMap[cat.parentId].children.push(categoryMap[cat._id])
-      }else{
-        rootCategories.push(categoryMap[cat._id])
-      }
-    })
-    
-      return res.status(200).json({
-        message: "Categories fetched successfully",
-        data: rootCategories,
-        success: true,
-        error: false,
+    // If there are no categories in DB, create a default one and use it
+    if (!categoryData || categoryData.length === 0) {
+      const defaultCategory = new categoyModal({
+        name: "Electronics",
+        parentCatName: "",
+        parentId: null,
+        images: [],
       });
-  
-  }
-  catch (error) {
-      return res
-        .status(500)
-        .json({ message: error.message || error, success: false,error : true });
+      await defaultCategory.save();
+      // reload categoryData to include the newly created default category
+      categoryData = [defaultCategory];
+    }
 
+    const categoryMap = {};
+
+    categoryData.forEach((cat) => (categoryMap[cat._id] = { ...cat._doc, children: [] }));
+
+    const rootCategories = [];
+
+    categoryData.forEach((cat) => {
+      if (cat.parentId) {
+        // ensure parent exists in the map before pushing
+        if (categoryMap[cat.parentId]) {
+          categoryMap[cat.parentId].children.push(categoryMap[cat._id]);
+        } else {
+          // Fallback: if parent not found, treat as root
+          rootCategories.push(categoryMap[cat._id]);
+        }
+      } else {
+        rootCategories.push(categoryMap[cat._id]);
+      }
+    });
+
+    return res.status(200).json({
+      message: "Categories fetched successfully",
+      data: rootCategories,
+      success: true,
+      error: false,
+    });
+
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: error.message || error, success: false, error: true });
   }
 };
 

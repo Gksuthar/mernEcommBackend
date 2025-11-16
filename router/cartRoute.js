@@ -4,7 +4,7 @@ import auth from '../middleware/auth.js'
 const cartRouter = express.Router()
 
 cartRouter.post('/create',auth,addToCartController)
-cartRouter.get('/get',auth,getCartItemController)
+cartRouter.get('/get',getCartItemController)
 cartRouter.put('/update-cart',auth,updateCartItemController)
 cartRouter.delete('/daleteCart',auth,deletCartItemQty)
 
